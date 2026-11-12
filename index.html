@@ -50,8 +50,13 @@ img{display:block}
 [hidden]{display:none!important}
 
 /* Sfondo */
-.wall{position:fixed;inset:0;background:#1A1512 url("img/fotografia_foto-03.webp") center 62%/cover no-repeat}
-.wall::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,14,10,.35),rgba(20,14,10,.05) 30%,rgba(20,14,10,.45))}
+.wall{position:fixed;inset:0;background:
+  radial-gradient(60% 55% at 18% 22%,#E8762D 0%,rgba(232,118,45,0) 70%),
+  radial-gradient(55% 60% at 85% 18%,#7A3B6E 0%,rgba(122,59,110,0) 70%),
+  radial-gradient(70% 60% at 70% 95%,#2C3E6B 0%,rgba(44,62,107,0) 70%),
+  radial-gradient(50% 45% at 30% 85%,#B5452E 0%,rgba(181,69,46,0) 70%),
+  #1A1512}
+.wall::after{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
 /* Barra menu */
 .menubar{position:fixed;top:0;left:0;right:0;z-index:9000;height:calc(30px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);
