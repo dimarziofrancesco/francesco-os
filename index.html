@@ -30,15 +30,17 @@
   --f-body:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;
   --r-win:18px;
+  --ed-key:#0E7C86;            /* chiavi e nomi file nell'editor */
+  --ed-val:#8A3E73;            /* valori e stringhe */
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --glass:rgba(28,24,22,.66);--glass-strong:rgba(30,26,24,.9);--glass-line:rgba(255,255,255,.12);
   --surface:#1F1B19;--surface-2:#2A2522;--fg:#F4EFEA;--fg-2:#ADA49B;--hair:rgba(255,255,255,.1);
-  --accent:#FF9A4D;--accent-soft:rgba(255,154,77,.16);--ok:#5BD08A;color-scheme:dark}}
+  --accent:#FF9A4D;--accent-soft:rgba(255,154,77,.16);--ok:#5BD08A;--ed-key:#6ED3D8;--ed-val:#E0A3D3;color-scheme:dark}}
 :root[data-theme="dark"]{
   --glass:rgba(28,24,22,.66);--glass-strong:rgba(30,26,24,.9);--glass-line:rgba(255,255,255,.12);
   --surface:#1F1B19;--surface-2:#2A2522;--fg:#F4EFEA;--fg-2:#ADA49B;--hair:rgba(255,255,255,.1);
-  --accent:#FF9A4D;--accent-soft:rgba(255,154,77,.16);--ok:#5BD08A;color-scheme:dark}
+  --accent:#FF9A4D;--accent-soft:rgba(255,154,77,.16);--ok:#5BD08A;--ed-key:#6ED3D8;--ed-val:#E0A3D3;color-scheme:dark}
 
 html,body{height:100%}
 body{background:#1A1512;color:var(--fg);font-family:var(--f-body);font-size:14.5px;overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -148,33 +150,66 @@ p{line-height:1.6}
 .feed img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.2,1),filter .3s}
 .feed button:hover img{transform:scale(1.05);filter:brightness(1.06)}
 
-/* Progetti: corridoio 3D guidato dallo scroll */
-.p3d{position:relative;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--hair) transparent;outline-offset:-2px}
-.p3d .track{position:relative}
-.p3d .stage{position:sticky;top:0;overflow:hidden;perspective:1200px;perspective-origin:50% 48%;background:var(--glass-strong)}
-.p3d .floor{position:absolute;left:-70%;right:-70%;top:50%;height:170%;transform-origin:50% 0;transform:rotateX(78deg);
-  background:repeating-linear-gradient(90deg,var(--hair) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,var(--hair) 0 1px,transparent 1px 56px);
-  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%,#000 60%,transparent 92%),linear-gradient(90deg,transparent 0,#000 30%,#000 70%,transparent);-webkit-mask-composite:source-in;
-  mask-image:linear-gradient(180deg,transparent 0,#000 22%,#000 60%,transparent 92%),linear-gradient(90deg,transparent 0,#000 30%,#000 70%,transparent);mask-composite:intersect;pointer-events:none}
-.pane{position:absolute;left:50%;top:0;width:min(720px,calc(100% - 56px));padding:26px 28px 28px;border-radius:20px;background:var(--surface);border:1px solid var(--hair);
-  box-shadow:0 30px 70px -30px rgba(10,8,6,.55),0 2px 6px -2px rgba(10,8,6,.2);transform:translate3d(-50%,0,0);backface-visibility:hidden;will-change:transform,opacity,filter;pointer-events:none}
-.pane.on{pointer-events:auto}
-.pane .h2{font-size:clamp(26px,3vw,34px);margin-top:12px}
-.pane .hero{border-radius:14px;overflow:hidden;background:var(--surface-2);width:100%;display:block}
-.pane .hero img{width:100%;height:auto}
-.duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:start}
-.feat{list-style:none;margin:18px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 28px}
-.feat li{display:grid;gap:3px;align-content:start;padding:12px 0 6px;border-top:1px solid var(--hair)}
-.feat b{font-weight:600}.feat span{color:var(--fg-2);font-size:13.5px;line-height:1.5}
-.p3d .hint{position:absolute;z-index:200;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:5px 10px 5px 12px;border-radius:99px;font-size:11.5px;font-weight:500;
-  color:var(--fg-2);background:var(--glass);border:1px solid var(--hair);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}
-.p3d .hint svg{width:14px;height:14px}
-.p3d.moved .hint{opacity:0;transform:translateX(-50%) translateY(6px)}
-/* Senza animazioni: elenco verticale normale */
-.p3d.flat .stage{position:static;height:auto!important;perspective:none;overflow:visible}
-.p3d.flat .floor,.p3d.flat .hint{display:none}
-.p3d.flat .track{height:auto!important}
-.p3d.flat .pane{position:relative;left:auto;width:auto;margin:16px;transform:none!important;opacity:1!important;filter:none!important;visibility:visible!important;pointer-events:auto;will-change:auto}
+/* Progetti: finestra in stile editor di codice */
+.ide{display:grid;grid-template-columns:44px 230px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;height:100%;background:var(--surface);position:relative}
+.ide.hide-ex{grid-template-columns:44px minmax(0,1fr)}
+.ide.hide-ex .ex{display:none}
+.act{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;border-right:1px solid var(--hair);background:var(--surface-2)}
+.act button{width:44px;height:40px;display:grid;place-items:center;color:var(--fg-2);border-left:2px solid transparent;border-radius:0}
+.act button svg{width:21px;height:21px}
+.act button:hover{color:var(--fg)}
+.act button.on{color:var(--fg);border-left-color:var(--accent)}
+.ex{border-right:1px solid var(--hair);background:var(--surface-2);overflow:auto;min-height:0;font-size:13px;padding-bottom:12px}
+.ex .hd{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2);padding:11px 14px 7px}
+.ex button{display:flex;align-items:center;gap:6px;width:100%;text-align:left;padding:4px 10px 4px calc(10px + var(--l,0)*14px);line-height:1.45;border-radius:0}
+.ex button:hover{background:var(--hair)}
+.ex button[aria-current="true"]{background:var(--accent-soft);color:var(--accent)}
+.ex .dir{font-weight:600}
+.ex .dir svg{transition:transform .15s}
+.ex .dir[aria-expanded="false"] svg{transform:rotate(-90deg)}
+.ex .dir[aria-expanded="false"]+div{display:none}
+.ex svg{width:14px;height:14px;flex:none}
+.ex .file svg{color:var(--ed-key)}
+.main{display:grid;grid-template-rows:auto auto minmax(0,1fr);min-width:0;min-height:0}
+.tabs{display:flex;align-items:stretch;background:var(--surface-2);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;flex:none;border-right:1px solid var(--hair);box-shadow:inset 0 -1px 0 var(--hair);color:var(--fg-2);position:relative}
+.tab .o{display:flex;align-items:center;gap:7px;padding:9px 4px 9px 12px;font-size:13px;white-space:nowrap;border-radius:0}
+.tab .o svg{width:14px;height:14px;color:var(--ed-key)}
+.tab .x{width:22px;height:22px;margin-right:6px;border-radius:5px;display:grid;place-items:center;opacity:0;font-size:16px;line-height:1}
+.tab:hover .x,.tab.on .x,.tab .x:focus-visible{opacity:1}
+.tab .x:hover{background:var(--hair)}
+.tab.on{background:var(--surface);color:var(--fg);box-shadow:none}
+.tab.on::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent)}
+.tabs .fill{flex:1;box-shadow:inset 0 -1px 0 var(--hair)}
+.exbtn{display:none}
+.crumbs{display:flex;align-items:center;gap:3px;padding:5px 14px;font-size:12px;color:var(--fg-2);white-space:nowrap;overflow:hidden}
+.crumbs svg{width:12px;height:12px;opacity:.6;flex:none}
+.ed{overflow:auto;min-height:0;padding:10px 0 32px;font-family:var(--f-mono);font-size:13px;line-height:1.7;scrollbar-width:thin;scrollbar-color:var(--hair) transparent}
+.ed ::selection{background:var(--accent-soft)}
+.ln{display:grid;grid-template-columns:54px minmax(0,1fr)}
+.ln .n{text-align:right;padding-right:18px;color:var(--fg-2);opacity:.5;user-select:none;font-variant-numeric:tabular-nums}
+.ln:hover .n{opacity:1}
+.ln .t{white-space:pre-wrap;overflow-wrap:anywhere;padding-right:24px;max-width:82ch}
+.t .c{color:var(--fg-2);opacity:.7}
+.t .k{color:var(--ed-key)}
+.t .v{color:var(--ed-val)}
+.t .mh1{color:var(--accent);font-weight:700;font-size:15px}
+.t .mh2{color:var(--accent);font-weight:700}
+.t b{font-weight:600}
+.t code{background:var(--surface-2);padding:1px 5px;border-radius:4px}
+.t a{color:var(--ed-key);text-underline-offset:3px;cursor:pointer}
+.t .prev{display:block;margin:6px 0 4px;max-width:440px;border-radius:10px;overflow:hidden;border:1px solid var(--hair);background:var(--surface-2)}
+.t .prev img{width:100%;height:auto}
+.empty{display:grid;justify-items:center;text-align:center;color:var(--fg-2);padding:48px 20px;font-family:var(--f-body)}
+.empty .mark{font-family:var(--f-display);font-weight:800;font-size:76px;letter-spacing:-.05em;color:var(--fg);opacity:.08;line-height:1}
+.empty p{margin:10px 0 14px}
+.empty .files{display:grid;gap:6px;justify-items:start}
+.empty .files button{font-family:var(--f-mono);font-size:13px;color:var(--ed-key);text-decoration:underline;text-underline-offset:3px}
+.status{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:3px 12px;font-size:11.5px;background:var(--accent);color:#1A1512;min-height:24px;white-space:nowrap;overflow:hidden}
+.status span{display:inline-flex;align-items:center;gap:5px;min-width:0}
+.status svg{width:12px;height:12px;flex:none}
+.status .r{margin-left:auto}
 .strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;grid-column:1/-1}
 .strip button{aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--surface-2)}
 .strip img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
@@ -291,10 +326,18 @@ p{line-height:1.6}
   .head h2{padding-right:70px}
   .about{grid-template-columns:1fr}
   .avatar{width:96px;border-radius:26px;font-size:36px}
-  .pane{width:calc(100% - 28px);padding:20px 18px 22px;border-radius:16px}
-  .pane .h2{font-size:26px}
-  .duo{grid-template-columns:1fr;gap:16px}
-  .p3d .hint{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .ide,.ide.hide-ex{grid-template-columns:minmax(0,1fr)}
+  .act,.crumbs{display:none}
+  .ex,.ide.hide-ex .ex{display:block;position:absolute;left:0;top:0;bottom:24px;width:min(280px,82%);z-index:5;transform:translateX(-102%);transition:transform .22s cubic-bezier(.16,1,.3,1);box-shadow:0 20px 50px -20px rgba(0,0,0,.5)}
+  .ide.show-ex .ex{transform:none}
+  .ide.show-ex::before{content:"";position:absolute;inset:0 0 24px 0;background:rgba(10,8,6,.25);z-index:4}
+  .exbtn{display:grid;place-items:center;width:42px;flex:none;border-right:1px solid var(--hair);box-shadow:inset 0 -1px 0 var(--hair);color:var(--fg-2);border-radius:0}
+  .exbtn svg{width:18px;height:18px}
+  .ln{grid-template-columns:40px minmax(0,1fr)}
+  .ln .n{padding-right:11px}
+  .ln .t{padding-right:14px}
+  .ed{font-size:12.5px}
+  .status{padding-bottom:calc(3px + env(safe-area-inset-bottom,0px))}
   .pad{padding:20px 18px 28px}
   .split{grid-template-columns:1fr;grid-template-rows:auto 1fr}
   .side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--hair);padding:8px}
@@ -306,12 +349,10 @@ p{line-height:1.6}
   .wbody{padding-bottom:env(safe-area-inset-bottom,0px)}
 }
 @media (prefers-reduced-motion:no-preference){
-  .p3d .hint svg{animation:nudge 1.6s cubic-bezier(.16,1,.3,1) infinite}
-  @keyframes nudge{0%,100%{transform:none}50%{transform:translateY(3px)}}
   .win.opening{animation:open .26s cubic-bezier(.2,.8,.2,1)}
   @keyframes open{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:none;opacity:1}}
 }
-@media (prefers-reduced-motion:reduce){.dk{transition:none}}
+@media (prefers-reduced-motion:reduce){.dk,.ex{transition:none}}
 @media (max-width:760px){.dk{width:56px!important;height:56px!important}}
 </style>
 </head>
@@ -402,50 +443,26 @@ const APPS = {
         <div class="quick"><button class="btn primary" data-open="progetti">Vedi i progetti</button><button class="btn" data-open="ai">Come lavoro</button><button class="btn" data-open="contatti">Contattami</button></div>
       </div>
     </div></div>`},
-  progetti:{name:"Progetti", w:860, h:640, x:300, y:64, html:()=>`
-    <div class="split">
-      <div class="side" role="tablist" aria-label="Progetti"><span class="lbl">In corso</span>
-        <button class="on" role="tab" aria-selected="true" data-jump="p-app">MyAuricon</button><button role="tab" aria-selected="false" data-jump="p-ai">AI in Auricon</button><span class="lbl">Conclusi</span><button role="tab" aria-selected="false" data-jump="p-udito">UditoinForma</button><button role="tab" aria-selected="false" data-jump="p-sap">Migrazione SAP</button></div>
-      <div class="content p3d" tabindex="0" aria-label="Scorri per attraversare i progetti">
-        <div class="track"><div class="stage">
-          <div class="floor" aria-hidden="true"></div>
-          <section class="pane on" id="p-app">
-            <span class="pill">MVP completato · rilascio dicembre 2026</span>
-            <h2 class="h2">MyAuricon</h2>
-            <p style="max-width:62ch;margin:0">Web app full-stack per le operazioni interne di Auricon. Una sola codebase TypeScript serve l'app installabile sul telefono dei dipendenti, la console di gestione e un client desktop per le filiali. L'ho progettata e sviluppata da solo, dal database al deploy.</p>
-            <ul class="feat">
-              <li><b>Frontend</b><span>Next.js 16 (App Router) e React 19 con Server Components e Server Actions, Tailwind CSS v4. PWA con service worker, installabile su Android e iPhone senza store.</span></li>
-              <li><b>Dati</b><span>PostgreSQL con Drizzle ORM: 44 tabelle, 17 migrazioni SQL versionate, vincoli e transazioni. Validazione Zod su ogni azione server.</span></li>
-              <li><b>Sicurezza</b><span>Autenticazione scritta da zero: password scrypt, sessioni in cookie httpOnly con solo l'hash nel database. Permessi per ruolo e sede verificati sul server, audit log di ogni modifica.</span></li>
-              <li><b>Infrastruttura</b><span>Deploy su Vercel (Francoforte) con PostgreSQL gestito su Neon in UE; le migrazioni si applicano in build. Client Electron per Windows che mostra un QR di timbratura rinnovato ogni 15 secondi.</span></li>
-              <li><b>Integrazioni</b><span>Mappe Leaflet con cluster e heatmap, export Excel con ExcelJS, generazione e lettura di QR, email transazionali via SMTP con Nodemailer.</span></li>
-              <li><b>Qualità</b><span>Regole di dominio pure e testate con node:test; scenario end-to-end con Playwright su due browser in parallelo, telefono e desktop. TypeScript ed ESLint.</span></li>
-            </ul>
-            ${meta([["Ruolo","Full-stack · progettazione e sviluppo"],["Stack","Next.js · React · TypeScript · PostgreSQL"],["Hosting","Vercel · Neon (UE)"],["Client","PWA · Electron"]])}
-          </section>
-          <section class="pane" id="p-ai">
-            <span class="pill">Continuo · dal 2025</span>
-            <h2 class="h2">AI nei processi aziendali</h2>
-            <p style="max-width:62ch;margin:0">In Auricon introduco strumenti di intelligenza artificiale nel lavoro quotidiano: dove serve semplificare attività ripetitive, produrre contenuti più in fretta e aiutare i colleghi a usare bene le nuove tecnologie.</p>
-            ${meta([["Azienda","Auricon Centro Sordità"],["Sedi","11 · Abruzzo, Molise, Marche"],["Ruolo","Innovazione e supporto"]])}
-          </section>
-          <section class="pane" id="p-udito">
-            <div class="duo">
-              <button class="hero" data-lb="udito" data-i="0"><img loading="lazy" src="${UDITO[0].t}" alt="Sito UditoinForma su più dispositivi"></button>
-              <div><span class="pill ok">Concluso · 2026</span><h2 class="h2">UditoinForma APS</h2>
-                <p style="margin:0">Sito istituzionale pro bono per un'associazione no-profit di Pescara che promuove prevenzione e benessere uditivo. HTML, CSS e JS puri: leggero, accessibile e gestibile anche senza un team tecnico interno.</p>
-                ${meta([["Ruolo","Progettazione + sviluppo"],["Stack","HTML · CSS · JS"]])}</div>
-            </div>
-          </section>
-          <section class="pane" id="p-sap">
-            <span class="pill ok">Concluso · 2022 – 2023</span>
-            <h2 class="h2">Migrazione SAP S/4HANA</h2>
-            <p style="max-width:62ch;margin:0">Stage come ICT Developer in Fater S.p.A.: sviluppo SAP ABAP a supporto della migrazione del gestionale verso S/4HANA, in un contesto enterprise.</p>
-            ${meta([["Azienda","Fater S.p.A."],["Stack","SAP ABAP · S/4HANA"]])}
-          </section>
-          <div class="hint" aria-hidden="true">Scorri per avanzare<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 10 6 6 6-6"/></svg></div>
-        </div></div>
+  progetti:{name:"Progetti", w:900, h:640, x:240, y:60, html:()=>`
+    <div class="ide">
+      <div class="act" role="toolbar" aria-label="Barra attività"><button class="on" data-act="ex" aria-label="Esplora risorse" title="Esplora risorse">${IC.files}</button><button data-act="search" aria-label="Cerca" title="Cerca (⌘K)">${IC.search}</button></div>
+      <nav class="ex" aria-label="Esplora risorse">
+        <div class="hd">Esplora risorse</div>
+        <button class="dir" aria-expanded="true">${IC.chev}progetti</button>
+        <div>
+          <button class="file" style="--l:1" data-file="readme">${IC.doc}README.md</button>
+          <button class="dir" style="--l:1" aria-expanded="true">${IC.chev}in-corso</button>
+          <div><button class="file" style="--l:2" data-file="p-app" data-jump="p-app">${IC.doc}myauricon.md</button><button class="file" style="--l:2" data-file="p-ai" data-jump="p-ai">${IC.doc}ai-auricon.md</button></div>
+          <button class="dir" style="--l:1" aria-expanded="true">${IC.chev}conclusi</button>
+          <div><button class="file" style="--l:2" data-file="p-udito" data-jump="p-udito">${IC.doc}uditoinforma.md</button><button class="file" style="--l:2" data-file="p-sap" data-jump="p-sap">${IC.doc}sap-s4hana.md</button></div>
+        </div>
+      </nav>
+      <div class="main">
+        <div class="tabs" role="tablist"></div>
+        <div class="crumbs" aria-label="Percorso"></div>
+        <div class="ed" tabindex="0"></div>
       </div>
+      <div class="status" aria-label="Barra di stato"></div>
     </div>`},
   ai:{name:"Come lavoro", w:640, h:600, x:420, y:96, html:()=>`
     <div class="pad">
@@ -541,7 +558,7 @@ function openApp(k){
   el.addEventListener("pointerdown",()=>focus(k));
   drag(el,el.querySelector(".head"));
   if(k==="terminale") term(el);
-  if(k==="progetti") corridor(el);
+  if(k==="progetti") ide(el);
   focus(k);
 }
 function close(k){ S.wins[k]?.remove(); delete S.wins[k]; pickTop(); }
@@ -572,43 +589,103 @@ function drag(win,h){
   });
   const end=()=>{on=false;h.style.cursor=""}; h.addEventListener("pointerup",end); h.addEventListener("pointercancel",end);
 }
-/* Progetti: lo scroll muove la camera lungo i progetti; ogni progetto si ferma a fuoco finché non è letto tutto */
-function corridor(el){
-  const c=el.querySelector(".content"), track=c.querySelector(".track"), stage=c.querySelector(".stage"), floor=c.querySelector(".floor");
-  const panes=[...c.querySelectorAll(".pane")], tabs=[...el.querySelectorAll("[data-jump]")];
-  const reduced=matchMedia("(prefers-reduced-motion:reduce)").matches;
-  const setTab=(i)=>tabs.forEach((t,j)=>{t.classList.toggle("on",j===i);t.setAttribute("aria-selected",j===i)});
-  if(reduced){ c.classList.add("flat");
-    tabs.forEach((t,i)=>t.addEventListener("click",()=>{setTab(i);c.scrollTo({top:panes[i].offsetTop-16})}));
-    return; }
-  let H=0,travel=0,ov=[],top=[],start=[],lastP=0,raf=0;
-  const PERS=()=>small()?900:1200, DEPTH=()=>small()?600:760, NEAR=()=>small()?420:520;
-  const measure=()=>{
-    H=c.clientHeight; const pad=small()?14:24; travel=Math.max(320,Math.round(H*.9)); let acc=0;
-    panes.forEach((p,i)=>{const h=p.offsetHeight; ov[i]=Math.max(0,h+pad*2-H); top[i]=ov[i]?pad:Math.round((H-h)/2); start[i]=acc; acc+=ov[i]+travel;});
-    stage.style.height=H+"px"; stage.style.perspective=PERS()+"px"; track.style.height=(H+acc-travel)+"px";
-  };
-  const render=()=>{ raf=0;
-    const s=c.scrollTop; let p=panes.length-1;
-    for(let i=0;i<panes.length;i++){ const d=s-start[i]; if(d<ov[i]){p=i;break} if(i<panes.length-1&&d<ov[i]+travel){p=i+(d-ov[i])/travel;break} }
-    panes.forEach((pane,i)=>{
-      const d=i-p, ty=Math.max(-ov[i],Math.min(0,-(s-start[i]))); let z,op,bl;
-      if(d>=0){ z=-d*DEPTH(); op=d<2.6?Math.max(.18,1-d*.34):0; bl=Math.min(small()?3:6,d*2.6); }
-      else { const t=-d; z=t*NEAR(); op=Math.max(0,1-t/.55); bl=t*4; }
-      pane.style.transform=`translate3d(-50%,${top[i]+ty}px,${z}px)`; pane.style.opacity=op.toFixed(3);
-      pane.style.filter=bl>.05&&op>0?`blur(${bl.toFixed(2)}px)`:""; pane.style.visibility=op<=.01?"hidden":""; pane.style.zIndex=Math.round(100-d*10);
-      pane.classList.toggle("on",Math.abs(d)<.5);
-    });
-    floor.style.transform=`rotateX(78deg) translateY(${(p*DEPTH()*.6)%56}px)`;
-    const k=Math.round(p); if(k!==Math.round(lastP)||!c.dataset.ready){setTab(k);c.dataset.ready=1}
-    c.classList.toggle("moved",s>30); lastP=p;
-  };
-  const queue=()=>{ if(!raf) raf=requestAnimationFrame(render); };
-  c.addEventListener("scroll",queue,{passive:true});
-  const ro=new ResizeObserver(()=>{ const k=Math.round(lastP); measure(); c.scrollTop=Math.min(c.scrollTop,start[k]+ov[k]); queue(); });
-  ro.observe(c); panes.forEach(p=>ro.observe(p));
-  tabs.forEach((t,i)=>t.addEventListener("click",()=>{setTab(i);c.scrollTo({top:start[i],behavior:"smooth"})}));
-  measure(); render();
+/* Progetti: i progetti sono file Markdown aperti in un editor, con esplora risorse, schede e barra di stato */
+const IC={
+  chev:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
+  right:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>`,
+  doc:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5M9 12.5h6M9 16h4"/></svg>`,
+  files:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3.5h-6A1.5 1.5 0 0 0 8 5v11a1.5 1.5 0 0 0 1.5 1.5h8A1.5 1.5 0 0 0 19 16V7z"/><path d="M15.5 3.5V7H19M5 8v11a1.5 1.5 0 0 0 1.5 1.5H15"/></svg>`,
+  search:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>`,
+  branch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4.5-12 2.5-12 7"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`
+};
+LISTS.udito=UDITO;
+const PREVIEWS={"img/sviluppo_uditoinforma_mockup-devices.webp":["udito",0]};
+const PROJ_FILES={
+  readme:{name:"README.md",dir:"",status:"4 progetti",src:[
+    "# Progetti","",
+    "Cartella di lavoro con i progetti che seguo o che ho concluso. Ogni file è una scheda: stato, ruolo e tecnologie in testa, poi il dettaglio.","",
+    "## In corso",
+    "- [myauricon.md](#p-app) — web app full-stack per le operazioni interne di Auricon",
+    "- [ai-auricon.md](#p-ai) — strumenti di intelligenza artificiale nei processi aziendali","",
+    "## Conclusi",
+    "- [uditoinforma.md](#p-udito) — sito istituzionale per un'associazione no-profit",
+    "- [sap-s4hana.md](#p-sap) — sviluppo ABAP per la migrazione a S/4HANA in Fater"]},
+  "p-app":{name:"myauricon.md",dir:"in-corso",status:"MVP completato · rilascio dicembre 2026",src:[
+    "---","nome: MyAuricon","stato: MVP completato · rilascio dicembre 2026","ruolo: full-stack · progettazione e sviluppo",
+    "stack: [Next.js 16, React 19, TypeScript, Tailwind CSS v4, PostgreSQL, Drizzle ORM]","hosting: Vercel (Francoforte) · Neon PostgreSQL (UE)","client: [PWA, Electron]","---","",
+    "# MyAuricon","",
+    "Web app full-stack per le operazioni interne di Auricon. Una sola codebase TypeScript serve l'app installabile sul telefono dei dipendenti, la console di gestione e un client desktop per le filiali. L'ho progettata e sviluppata da solo, dal database al deploy.","",
+    "## Frontend","Next.js 16 (App Router) e React 19 con Server Components e Server Actions, Tailwind CSS v4. PWA con service worker, installabile su Android e iPhone senza store.","",
+    "## Dati","PostgreSQL con Drizzle ORM: 44 tabelle, 17 migrazioni SQL versionate, vincoli e transazioni. Validazione Zod su ogni azione server.","",
+    "## Sicurezza","Autenticazione scritta da zero: password scrypt, sessioni in cookie httpOnly con solo l'hash nel database. Permessi per ruolo e sede verificati sul server, audit log di ogni modifica.","",
+    "## Infrastruttura","Deploy su Vercel (Francoforte) con PostgreSQL gestito su Neon in UE; le migrazioni si applicano in build. Client Electron per Windows che mostra un QR di timbratura rinnovato ogni 15 secondi.","",
+    "## Integrazioni","Mappe Leaflet con cluster e heatmap, export Excel con ExcelJS, generazione e lettura di QR, email transazionali via SMTP con Nodemailer.","",
+    "## Qualità","Regole di dominio pure e testate con node:test; scenario end-to-end con Playwright su due browser in parallelo, telefono e desktop. TypeScript ed ESLint."]},
+  "p-ai":{name:"ai-auricon.md",dir:"in-corso",status:"Continuo · dal 2025",src:[
+    "---","nome: AI nei processi aziendali","stato: continuo · dal 2025","azienda: Auricon Centro Sordità","sedi: 11 · Abruzzo, Molise, Marche","ruolo: innovazione e supporto","---","",
+    "# AI nei processi aziendali","",
+    "In Auricon introduco strumenti di intelligenza artificiale nel lavoro quotidiano: dove serve semplificare attività ripetitive, produrre contenuti più in fretta e aiutare i colleghi a usare bene le nuove tecnologie.","",
+    "## Metodo",
+    "- **Ascolto il processo**: dove si perde tempo tra fogli Excel, email e passaggi manuali.",
+    "- **Prototipo con l'AI** per arrivare in fretta a una prima versione da provare.",
+    "- **Costruisco su misura**: web app con ruoli e permessi, pensate per chi le usa ogni giorno.",
+    "- **Accompagno le persone**: supporto, piccoli aggiustamenti e formazione dei colleghi."]},
+  "p-udito":{name:"uditoinforma.md",dir:"conclusi",status:"Concluso · 2026",src:[
+    "---","nome: UditoinForma APS","stato: concluso · 2026","cliente: associazione no-profit di Pescara · pro bono","ruolo: progettazione e sviluppo","stack: [HTML, CSS, JavaScript]","---","",
+    "# UditoinForma APS","",
+    "Sito istituzionale pro bono per un'associazione no-profit di Pescara che promuove prevenzione e benessere uditivo. HTML, CSS e JS puri: leggero, accessibile e gestibile anche senza un team tecnico interno.","",
+    "![Sito su desktop, tablet e telefono](img/sviluppo_uditoinforma_mockup-devices.webp)"]},
+  "p-sap":{name:"sap-s4hana.md",dir:"conclusi",status:"Concluso · 2022 – 2023",src:[
+    "---","nome: Migrazione SAP S/4HANA","stato: concluso · 2022 – 2023","azienda: Fater S.p.A.","ruolo: stage · ICT Developer","stack: [SAP ABAP, S/4HANA]","---","",
+    "# Migrazione SAP S/4HANA","",
+    "Stage come ICT Developer in Fater S.p.A.: sviluppo SAP ABAP a supporto della migrazione del gestionale verso S/4HANA, in un contesto enterprise."]}
+};
+const escH=t=>t.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const mdInline=t=>escH(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\[([^\]]+)\]\(#([\w-]+)\)/g,'<a data-file="$2">$1</a>');
+const mdVal=v=>{const m=v.match(/^\[(.*)\]$/); return m?`<span class="c">[</span>${m[1].split(",").map(x=>`<span class="v">${escH(x.trim())}</span>`).join('<span class="c">, </span>')}<span class="c">]</span>`:`<span class="v">${escH(v)}</span>`};
+function renderMd(lines){
+  let fm=false;
+  return lines.map((l,i)=>{
+    let t,extra="";
+    if(l==="---"){fm=!fm;t='<span class="c">---</span>'}
+    else if(fm){const m=l.match(/^(\w+):\s?(.*)$/);t=m?`<span class="k">${m[1]}</span><span class="c">:</span> ${mdVal(m[2])}`:escH(l)}
+    else if(l.startsWith("# ")) t=`<span class="mh1"><span class="c">#</span> ${mdInline(l.slice(2))}</span>`;
+    else if(l.startsWith("## ")) t=`<span class="mh2"><span class="c">##</span> ${mdInline(l.slice(3))}</span>`;
+    else if(l.startsWith("- ")) t=`<span class="c">-</span> ${mdInline(l.slice(2))}`;
+    else{const im=l.match(/^!\[(.*?)\]\((.*?)\)$/);
+      if(im){t=`<span class="c">![</span>${escH(im[1])}<span class="c">](</span><span class="v">${escH(im[2])}</span><span class="c">)</span>`;
+        const pv=PREVIEWS[im[2]]; if(pv) extra=`<div class="ln"><span class="n"></span><span class="t"><button class="prev" data-lb="${pv[0]}" data-i="${pv[1]}" aria-label="${escH(im[1])}: apri l'immagine"><img loading="lazy" src="${LISTS[pv[0]][pv[1]].t}" alt=""></button></span></div>`}
+      else t=mdInline(l)}
+    return `<div class="ln"><span class="n">${i+1}</span><span class="t">${t}</span></div>${extra}`;
+  }).join("");
+}
+function ide(el){
+  const root=el.querySelector(".ide"), ex=root.querySelector(".ex"), tabs=root.querySelector(".tabs"), crumbs=root.querySelector(".crumbs"), ed=root.querySelector(".ed"), st=root.querySelector(".status");
+  let open=["p-app","p-ai","p-udito","p-sap"], active="p-app";
+  const show=id=>{ if(!PROJ_FILES[id]) return; if(!open.includes(id)) open.push(id); active=id; root.classList.remove("show-ex"); draw(); };
+  const closeTab=id=>{ const i=open.indexOf(id); if(i<0) return; open.splice(i,1); if(active===id) active=open[Math.min(i,open.length-1)]||null; draw(); };
+  function draw(){
+    tabs.innerHTML=`<button class="exbtn" aria-label="Mostra i file" aria-expanded="false">${IC.files}</button>`+open.map(id=>`<div class="tab${id===active?" on":""}" role="tab" aria-selected="${id===active}"><button class="o" data-file="${id}">${IC.doc}${PROJ_FILES[id].name}</button><button class="x" data-close="${id}" aria-label="Chiudi ${PROJ_FILES[id].name}">×</button></div>`).join("")+`<div class="fill"></div>`;
+    ex.querySelectorAll("[data-file]").forEach(b=>b.setAttribute("aria-current",b.dataset.file===active));
+    if(active){ const f=PROJ_FILES[active];
+      crumbs.innerHTML=["progetti",f.dir,f.name].filter(Boolean).map(escH).join(IC.right);
+      ed.innerHTML=renderMd(f.src); ed.scrollTop=0;
+      st.innerHTML=`<span>${IC.branch}main</span><span>${IC.check}${escH(f.status)}</span><span class="r">Markdown</span><span>UTF-8</span>`;
+      const t=tabs.querySelector(".tab.on"); if(t){ if(t.offsetLeft<tabs.scrollLeft) tabs.scrollLeft=t.offsetLeft-42; else if(t.offsetLeft+t.offsetWidth>tabs.scrollLeft+tabs.clientWidth) tabs.scrollLeft=t.offsetLeft+t.offsetWidth-tabs.clientWidth; }
+    } else { crumbs.innerHTML="";
+      ed.innerHTML=`<div class="empty"><div class="mark">FDM</div><p>Nessun file aperto. Scegli un progetto:</p><div class="files">${Object.entries(PROJ_FILES).filter(([k])=>k!=="readme").map(([k,f])=>`<button data-file="${k}">${f.dir}/${f.name}</button>`).join("")}</div></div>`;
+      st.innerHTML=`<span>${IC.branch}main</span><span class="r">4 progetti</span>`; }
+  }
+  root.addEventListener("click",e=>{
+    const f=e.target.closest("[data-file]"); if(f){show(f.dataset.file);return}
+    const x=e.target.closest("[data-close]"); if(x){closeTab(x.dataset.close);return}
+    const d=e.target.closest(".dir"); if(d){d.setAttribute("aria-expanded",d.getAttribute("aria-expanded")!=="true");return}
+    const eb=e.target.closest(".exbtn"); if(eb){const on=root.classList.toggle("show-ex");eb.setAttribute("aria-expanded",on);return}
+    const a=e.target.closest("[data-act]"); if(a){ if(a.dataset.act==="ex"){const hid=root.classList.toggle("hide-ex");a.classList.toggle("on",!hid)} else openSpot(); return }
+    if(e.target===root) root.classList.remove("show-ex");
+  });
+  draw();
 }
 
 /* ---------- Dock: ingrandimento ---------- */
