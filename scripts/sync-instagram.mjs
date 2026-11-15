@@ -2,7 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const TOKEN = process.env.IG_TOKEN;
-if (!TOKEN) throw new Error("IG_TOKEN mancante");
+if (!TOKEN) {
+  console.log("IG_TOKEN non impostato: sincronizzazione saltata");
+  process.exit(0);
+}
 
 const OUT = "assets/instagram";
 const API = "https://graph.instagram.com";

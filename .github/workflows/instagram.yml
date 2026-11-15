@@ -8,6 +8,8 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    # Spento finché non crei la variabile IG_SYNC = on (Settings › Secrets and variables › Actions › Variables)
+    if: ${{ vars.IG_SYNC == 'on' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
